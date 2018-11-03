@@ -51,7 +51,8 @@ func generateHash(block Block) []byte {
 	hashToString := "default"
 	for (hashToString[:2] != "00") {
 		timestamp := []byte(strconv.FormatInt(block.timestamp, 10))
-		headers := bytes.Join([][]byte{[]byte(strconv.Itoa(nonce)), block.prevHash, timestamp}, []byte{})
+		ratingArr := []byte(fmt.Sprintf("%v", block.records))
+		headers := bytes.Join([][]byte{[]byte(strconv.Itoa(nonce)), block.prevHash, timestamp, ratingArr}, []byte{})
 		hash = sha256.Sum256(headers)
 		hashToString = base64.URLEncoding.EncodeToString(hash[:])
 		nonce++

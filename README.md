@@ -1,1 +1,1 @@
-# simple_blockchain
+# Simple blockchain to familiarize with the blockchain concept
