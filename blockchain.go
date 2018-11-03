@@ -7,41 +7,76 @@ import (
 	"bytes"
 	"encoding/gob"
 	"github.com/boltdb/bolt"
+	"log"
+	"time"
+	"errors"
 )
 type BlockChain struct {
 	blocks		[]*Block
 }
 
-const dbFile = "blockchain.db"
-var blockchain_ins *BlockChain;
-
-func createBlockChain(block *Block) *BlockChain {
-	blocks := []*Block{block}
-	blockchain_ins = &BlockChain{blocks}
-	return blockchain_ins
+func createBlockChain() *BlockChain {
+	return &BlockChain{[]*Block{}}
 }
 
 func addBlock(block *Block) {
 	blockchain := loadBlockChain()
-	if (blockchain == nil) {
-		blockchain = createBlockChain(block)
+	if (blockchain == nil || len(blockchain.blocks) == 0) {
+		blockchain = createBlockChain()
 		persistBlockChain(blockchain)
-	} else {
-		blockchain.blocks = append(blockchain.blocks, block)
-		persistBlock(block)
 	}
+	blockchain.blocks = append(blockchain.blocks, block)
+	persistBlock(block)
 }
 
 func getBlockChain() *BlockChain {
-	return blockchain_ins
+	return loadBlockChain()
 }
 
 func persistBlockChain(blockchain *BlockChain) {
-	bolt.Open(dbFile, 0600, nil)
+	db, err := bolt.Open("blockchain.db", 0600, &bolt.Options{Timeout: 2 * time.Second})
+	if err != nil {
+		log.Fatal("Error while opening db ")
+		log.Fatal(err)
+	}
+
+	err = db.Update(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte("block_bucket"))
+
+		if (bucket != nil) {
+			log.Fatal("Bucket shouldn't exist ")
+			return errors.New("Bucket shouldn't exist")
+		}
+
+		bucket, err := tx.CreateBucket([]byte("block_bucket"))
+
+		if err != nil {
+			log.Fatal("Error while persisting bucket ")
+			return errors.New("Error while persisting bucket")
+		}
+		return nil
+	})
+	defer db.Close()
+
 }
 
 func persistBlock(block *Block) {
-	serializeBlock(block)
+	serializedBlock := serializeBlock(block)
+	db, err := bolt.Open("blockchain.db", 0600, &bolt.Options{Timeout: 2 * time.Second})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = db.Update(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte("block_bucket"))
+		err = bucket.Put(block.hash, serializedBlock)
+		if err != nil {
+			log.Fatal(err)
+			return errors.New("Error while persisting bucket")
+		}
+		return nil
+	})
+	defer db.Close()
 }
 
 func serializeBlock(block *Block) []byte {
@@ -59,10 +94,46 @@ func deserializeBlock(data []byte) *Block {
 }
 
 func cleanUp() {
-	blockchain_ins = nil
+	db, err := bolt.Open("blockchain.db", 0600, &bolt.Options{Timeout: 2 * time.Second})
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = db.View(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte("block_bucket"))
+		if (bucket != nil) {
+			err = tx.DeleteBucket([]byte("block_bucket"))
+			if err != nil {
+				log.Fatal(err)
+				return nil
+			}
+		}
+		return nil
+	})
+	defer db.Close()
 }
 
 func loadBlockChain() *BlockChain {
-	return blockchain_ins
+	var blockchain *BlockChain;
+	db, err := bolt.Open("blockchain.db", 0400, &bolt.Options{Timeout: 2 * time.Second})
+	if err != nil {
+		log.Fatal(err)
+		return nil
+	}
+
+	err = db.View(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte("block_bucket"))
+		blockchain = &BlockChain{[]*Block{}}
+		blocks := []*Block{}
+		if (bucket != nil) {
+			c := bucket.Cursor()
+
+			for k, v := c.First(); k != nil; k, v = c.Next() {
+				blockchain.blocks = append(blocks, deserializeBlock(v))
+			}
+		}
+		return nil
+	})
+	defer db.Close()
+	return blockchain
 }
 
