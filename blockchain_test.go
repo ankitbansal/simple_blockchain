@@ -46,10 +46,7 @@ func TestShouldAddBlockInOrder(t *testing.T) {
 		t.Errorf("Blockchain size should be %d but was %d", 2, len(bc.blocks))
 	}
 
-	block1 := bc.blocks[0]
-	block2 := bc.blocks[1]
-
-	if (reflect.DeepEqual(block1, newBlock) && reflect.DeepEqual(block2, newBlock)) {
+	if (!reflect.DeepEqual(bc.blocks[1], newBlock)) {
 		t.Errorf("Block is not added properly")
 	}
 

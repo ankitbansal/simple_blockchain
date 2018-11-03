@@ -10,14 +10,16 @@ import (
 	"log"
 	"time"
 	"errors"
+	"strconv"
 //	"fmt"
 )
 type BlockChain struct {
 	blocks		[]*Block
+	lastIndex	int
 }
 
 func createBlockChain() *BlockChain {
-	return &BlockChain{[]*Block{}}
+	return &BlockChain{[]*Block{}, -1}
 }
 
 func addBlock(block *Block) {
@@ -27,7 +29,7 @@ func addBlock(block *Block) {
 		persistBlockChain(blockchain)
 	}
 	blockchain.blocks = append(blockchain.blocks, block)
-	persistBlock(block)
+	persistBlock(blockchain.lastIndex+1, block)
 }
 
 func getBlockChain() *BlockChain {
@@ -61,7 +63,7 @@ func persistBlockChain(blockchain *BlockChain) {
 
 }
 
-func persistBlock(block *Block) {
+func persistBlock(index int, block *Block) {
 	serializedBlock := serializeBlock(block)
 	db, err := bolt.Open("blockchain.db", 0600, &bolt.Options{Timeout: 2 * time.Second})
 	if err != nil {
@@ -70,7 +72,7 @@ func persistBlock(block *Block) {
 
 	err = db.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte("block_bucket"))
-		err = bucket.Put([]byte(block.Hash), serializedBlock)
+		err = bucket.Put([]byte(strconv.Itoa(index)), serializedBlock)
 		if err != nil {
 			log.Fatal(err)
 			return errors.New("Error while persisting bucket")
@@ -126,13 +128,14 @@ func loadBlockChain() *BlockChain {
 
 	err = db.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte("block_bucket"))
-		blockchain = &BlockChain{[]*Block{}}
+		blockchain = &BlockChain{[]*Block{}, -1}
 		//blocks := []*Block{}
 		if (bucket != nil) {
 			c := bucket.Cursor()
 
 			for k, v := c.First(); k != nil; k, v = c.Next() {
 				blockchain.blocks = append(blockchain.blocks, deserializeBlock(v))
+				blockchain.lastIndex = blockchain.lastIndex + 1
 			}
 		}
 		return nil
