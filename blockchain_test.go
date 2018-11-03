@@ -4,6 +4,7 @@ import (
 	"testing"
 	"encoding/base64"
 	"time"
+	"fmt"
 )
 
 func TestBlockChainShouldInitializeWithGenesisBlock(t *testing.T) {
@@ -48,7 +49,7 @@ func TestShouldAddBlockInOrder(t *testing.T) {
 	customer := Customer{1, "dummyConsumer"}
 	timestamp := time.Now().Unix()
 	rating := Rating{5, timestamp, "dummy", supplier, customer}
-	newBlock := createBlock([]Rating{rating}, bc.blocks[0].prevHash)
+	newBlock := createBlock([]Rating{rating}, bc.blocks[0].hash)
 	addBlock(bc, newBlock)
 
 	if len(bc.blocks) != 2 {
@@ -57,5 +58,16 @@ func TestShouldAddBlockInOrder(t *testing.T) {
 
 	if (bc.blocks[1] != newBlock) {
 		t.Errorf("Block is not added properly")
+	}
+
+	//this is added to see how overall blockchain looks like
+	printBlockChain(bc)
+}
+
+func printBlockChain(blockChain *BlockChain) {
+	for _, block := range blockChain.blocks {
+		fmt.Printf("Prev. hash: %x\n", block.prevHash)
+		fmt.Printf("Hash: %x\n", block.hash)
+		fmt.Println()
 	}
 }

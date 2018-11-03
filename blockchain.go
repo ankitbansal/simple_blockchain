@@ -41,10 +41,6 @@ type BlockChain struct {
 	blocks		[]*Block
 }
 
-func main() {
-
-}
-
 func generateHash(block Block) []byte {
 	nonce := 0
 	var hash [32]byte;
