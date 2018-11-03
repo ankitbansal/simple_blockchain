@@ -48,6 +48,7 @@ func createBlockChain() *BlockChain {
 
 func createBlock(records []Rating, prevHash string) *Block {
 	var block *Block = &Block{records, "", prevHash, time.Now().Unix()}
+	block.hash = "1"
 	//block.records =
 	return block
 }
