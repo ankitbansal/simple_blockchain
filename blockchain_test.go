@@ -18,6 +18,10 @@ func TestBlockChainShouldInitializeWithGenesisBlock(t *testing.T) {
 	if genesisBlock.hash == nil {
 		t.Errorf("Genesis Block must have hash value")
 	}
+	hashToString := base64.URLEncoding.EncodeToString(genesisBlock.hash[:])
+	if hashToString[:2] != "00" {
+		t.Errorf("Genesis Block hash is invalid. Expected: %s, got %s", "00", hashToString[:2])
+	}
 }
 
 func TestShouldGenerateValidHash(t *testing.T) {
@@ -36,6 +40,5 @@ func TestShouldGenerateValidHash(t *testing.T) {
 	if (hashToString[:2] != "00") {
 		t.Errorf("Hash is invalid. Expected: %s, got %s", "00", hashToString[:2])
 	}
-
-
 }
+

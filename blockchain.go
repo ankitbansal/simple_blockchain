@@ -50,7 +50,8 @@ func generateHash(block Block) []byte {
 	var hash [32]byte;
 	hashToString := "default"
 	for (hashToString[:2] != "00") {
-		headers := bytes.Join([][]byte{[]byte(strconv.Itoa(nonce)), block.prevHash}, []byte{})
+		timestamp := []byte(strconv.FormatInt(block.timestamp, 10))
+		headers := bytes.Join([][]byte{[]byte(strconv.Itoa(nonce)), block.prevHash, timestamp}, []byte{})
 		hash = sha256.Sum256(headers)
 		hashToString = base64.URLEncoding.EncodeToString(hash[:])
 		nonce++
@@ -68,11 +69,14 @@ func createBlockChain() *BlockChain {
 
 func createBlock(records []Rating, prevHash []byte) *Block {
 	var block *Block = &Block{records, nil, prevHash, time.Now().Unix()}
-	block.hash = []byte("1")
-	//block.records =
+	block.hash = generateHash(*block)
 	return block
 }
 
 func genesisBlock() *Block {
-	return createBlock(nil, nil)
+	supplier := Supplier{1, "dummySupplier"}
+	customer := Customer{1, "dummyConsumer"}
+	timestamp := time.Now().Unix()
+	rating := Rating{5, timestamp, "dummy", supplier, customer}
+	return createBlock([]Rating{rating}, nil)
 }
