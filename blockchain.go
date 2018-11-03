@@ -58,7 +58,7 @@ func generateHash(block Block) []byte {
 		nonce++
 	}
 
-	fmt.Printf("nonce : %d", nonce)
+	fmt.Printf("nonce : %d\n", nonce)
 	return hash[:]
 }
 
@@ -66,6 +66,10 @@ func createBlockChain() *BlockChain {
 	block := genesisBlock();
 	blocks := []*Block{block}
 	return &BlockChain{blocks}
+}
+
+func addBlock(blockchain *BlockChain, block *Block) {
+	blockchain.blocks = append(blockchain.blocks, block)
 }
 
 func createBlock(records []Rating, prevHash []byte) *Block {

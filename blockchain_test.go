@@ -42,3 +42,20 @@ func TestShouldGenerateValidHash(t *testing.T) {
 	}
 }
 
+func TestShouldAddBlockInOrder(t *testing.T) {
+	bc := createBlockChain()
+	supplier := Supplier{1, "dummySupplier"}
+	customer := Customer{1, "dummyConsumer"}
+	timestamp := time.Now().Unix()
+	rating := Rating{5, timestamp, "dummy", supplier, customer}
+	newBlock := createBlock([]Rating{rating}, bc.blocks[0].prevHash)
+	addBlock(bc, newBlock)
+
+	if len(bc.blocks) != 2 {
+		t.Errorf("Blockchain size should be 2")
+	}
+
+	if (bc.blocks[1] != newBlock) {
+		t.Errorf("Block is not added properly")
+	}
+}
