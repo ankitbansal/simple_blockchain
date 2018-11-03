@@ -8,6 +8,7 @@ import (
 )
 
 func TestBlockChainShouldInitializeWithGenesisBlock(t *testing.T) {
+	cleanUp()
 	bc := createBlockChain()
 	genesisBlock := bc.blocks[0]
 	if genesisBlock == nil {
@@ -25,32 +26,15 @@ func TestBlockChainShouldInitializeWithGenesisBlock(t *testing.T) {
 	}
 }
 
-func TestShouldGenerateValidHash(t *testing.T) {
-	var block Block = Block{
-		prevHash: nil,
-		hash: nil,
-		timestamp: time.Now().Unix(),
-	}
-
-	hash := generateHash(block);
-	hashToString := base64.URLEncoding.EncodeToString(hash[:])
-
-	if (hash == nil) {
-		t.Errorf("Hash can't be empty")
-	}
-	if (hashToString[:2] != "00") {
-		t.Errorf("Hash is invalid. Expected: %s, got %s", "00", hashToString[:2])
-	}
-}
-
 func TestShouldAddBlockInOrder(t *testing.T) {
+	cleanUp()
 	bc := createBlockChain()
 	supplier := Supplier{1, "dummySupplier"}
 	customer := Customer{1, "dummyConsumer"}
 	timestamp := time.Now().Unix()
 	rating := Rating{5, timestamp, "dummy", supplier, customer}
 	newBlock := createBlock([]Rating{rating}, bc.blocks[0].hash)
-	addBlock(bc, newBlock)
+	addBlock(newBlock)
 
 	if len(bc.blocks) != 2 {
 		t.Errorf("Blockchain size should be 2")
@@ -71,4 +55,8 @@ func printBlockChain(blockChain *BlockChain) {
 		fmt.Printf("Str Value : %s\n", base64.URLEncoding.EncodeToString(block.hash[:]))
 		fmt.Println()
 	}
+}
+
+func cleanUp() {
+
 }
