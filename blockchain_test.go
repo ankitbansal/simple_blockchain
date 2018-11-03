@@ -68,6 +68,7 @@ func printBlockChain(blockChain *BlockChain) {
 	for _, block := range blockChain.blocks {
 		fmt.Printf("Prev. hash: %x\n", block.prevHash)
 		fmt.Printf("Hash: %x\n", block.hash)
+		fmt.Printf("Str Value : %s\n", base64.URLEncoding.EncodeToString(block.hash[:]))
 		fmt.Println()
 	}
 }
