@@ -40,12 +40,18 @@ func main() {
 
 }
 
-func addBlock(records []Rating, prevHash string) *Block {
-	var block *Block = &Block{nil, "", prevHash, time.Now().Unix()}
+func createBlockChain() *BlockChain {
+	block := genesisBlock();
+	blocks := []*Block{block}
+	return &BlockChain{blocks}
+}
+
+func createBlock(records []Rating, prevHash string) *Block {
+	var block *Block = &Block{records, "", prevHash, time.Now().Unix()}
 	//block.records =
 	return block
 }
 
-func genesisBlock() {
-	return
+func genesisBlock() *Block {
+	return createBlock(nil, "")
 }
