@@ -98,7 +98,7 @@ func cleanUp() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = db.View(func(tx *bolt.Tx) error {
+	err = db.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte("block_bucket"))
 		if (bucket != nil) {
 			err = tx.DeleteBucket([]byte("block_bucket"))
@@ -114,7 +114,7 @@ func cleanUp() {
 
 func loadBlockChain() *BlockChain {
 	var blockchain *BlockChain;
-	db, err := bolt.Open("blockchain.db", 0400, &bolt.Options{Timeout: 2 * time.Second})
+	db, err := bolt.Open("blockchain.db", 0600, &bolt.Options{Timeout: 2 * time.Second})
 	if err != nil {
 		log.Fatal(err)
 		return nil

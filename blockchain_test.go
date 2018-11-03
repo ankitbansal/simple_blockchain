@@ -13,6 +13,9 @@ func TestBlockChainShouldInitializeWithGenesisBlock(t *testing.T) {
 
 	bc := getBlockChain()
 	genesisBlock := bc.blocks[0]
+	fmt.Printf("Prev. hash: %x\n", genesisBlock.prevHash)
+	fmt.Printf("Prev. hash: %x\n", genesisBlock.hash)
+	fmt.Printf("Prev. hash: %x\n", genesisBlock.records)
 	if genesisBlock == nil {
 		t.Errorf("BlockChain not initialized with genesis block")
 	}
