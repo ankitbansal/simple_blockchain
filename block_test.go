@@ -8,9 +8,9 @@ import (
 
 func TestShouldGenerateValidHash(t *testing.T) {
 	var block Block = Block{
-		prevHash: nil,
-		hash: nil,
-		timestamp: time.Now().Unix(),
+		PrevHash: nil,
+		Hash: nil,
+		Timestamp: time.Now().Unix(),
 	}
 
 	hash := generateHash(block);

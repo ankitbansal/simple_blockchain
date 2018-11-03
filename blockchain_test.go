@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"time"
 	"fmt"
+	"reflect"
 )
 
 func TestBlockChainShouldInitializeWithGenesisBlock(t *testing.T) {
@@ -13,19 +14,16 @@ func TestBlockChainShouldInitializeWithGenesisBlock(t *testing.T) {
 
 	bc := getBlockChain()
 	genesisBlock := bc.blocks[0]
-	fmt.Printf("Prev. hash: %x\n", genesisBlock.prevHash)
-	fmt.Printf("Prev. hash: %x\n", genesisBlock.hash)
-	fmt.Printf("Prev. hash: %x\n", genesisBlock.records)
 	if genesisBlock == nil {
 		t.Errorf("BlockChain not initialized with genesis block")
 	}
-	if genesisBlock.prevHash != nil {
+	if genesisBlock.PrevHash != nil {
 		t.Errorf("Genesis Block must have nil previous hash")
 	}
-	if genesisBlock.hash == nil {
+	if genesisBlock.Hash == nil {
 		t.Errorf("Genesis Block must have hash value")
 	}
-	hashToString := base64.URLEncoding.EncodeToString(genesisBlock.hash[:])
+	hashToString := base64.URLEncoding.EncodeToString(genesisBlock.Hash[:])
 	if hashToString[:2] != "00" {
 		t.Errorf("Genesis Block hash is invalid. Expected: %s, got %s", "00", hashToString[:2])
 	}
@@ -40,7 +38,7 @@ func TestShouldAddBlockInOrder(t *testing.T) {
 	customer := Customer{1, "dummyConsumer"}
 	timestamp := time.Now().Unix()
 	rating := Rating{5, timestamp, "dummy", supplier, customer}
-	newBlock := createBlock([]Rating{rating}, genesisBlock.hash)
+	newBlock := createBlock([]Rating{rating}, genesisBlock.Hash)
 
 	addBlock(newBlock)
 	bc := getBlockChain()
@@ -48,7 +46,10 @@ func TestShouldAddBlockInOrder(t *testing.T) {
 		t.Errorf("Blockchain size should be %d but was %d", 2, len(bc.blocks))
 	}
 
-	if (bc.blocks[1] != newBlock) {
+	block1 := bc.blocks[0]
+	block2 := bc.blocks[1]
+
+	if (reflect.DeepEqual(block1, newBlock) && reflect.DeepEqual(block2, newBlock)) {
 		t.Errorf("Block is not added properly")
 	}
 
@@ -58,9 +59,7 @@ func TestShouldAddBlockInOrder(t *testing.T) {
 
 func printBlockChain(blockChain *BlockChain) {
 	for _, block := range blockChain.blocks {
-		fmt.Printf("Prev. hash: %x\n", block.prevHash)
-		fmt.Printf("Hash: %x\n", block.hash)
-		fmt.Printf("Str Value : %s\n", base64.URLEncoding.EncodeToString(block.hash[:]))
+		fmt.Printf("Block: %x\n", block)
 		fmt.Println()
 	}
 }

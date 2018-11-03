@@ -10,6 +10,7 @@ import (
 	"log"
 	"time"
 	"errors"
+//	"fmt"
 )
 type BlockChain struct {
 	blocks		[]*Block
@@ -69,7 +70,7 @@ func persistBlock(block *Block) {
 
 	err = db.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte("block_bucket"))
-		err = bucket.Put(block.hash, serializedBlock)
+		err = bucket.Put([]byte(block.Hash), serializedBlock)
 		if err != nil {
 			log.Fatal(err)
 			return errors.New("Error while persisting bucket")
@@ -82,7 +83,10 @@ func persistBlock(block *Block) {
 func serializeBlock(block *Block) []byte {
 	var serializedData bytes.Buffer
 	encoder := gob.NewEncoder(&serializedData)
-	encoder.Encode(block)
+	err := encoder.Encode(block)
+	if err != nil {
+		log.Fatal("encode:", err)
+	}
 	return serializedData.Bytes()
 }
 
@@ -123,12 +127,12 @@ func loadBlockChain() *BlockChain {
 	err = db.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte("block_bucket"))
 		blockchain = &BlockChain{[]*Block{}}
-		blocks := []*Block{}
+		//blocks := []*Block{}
 		if (bucket != nil) {
 			c := bucket.Cursor()
 
 			for k, v := c.First(); k != nil; k, v = c.Next() {
-				blockchain.blocks = append(blocks, deserializeBlock(v))
+				blockchain.blocks = append(blockchain.blocks, deserializeBlock(v))
 			}
 		}
 		return nil

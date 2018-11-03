@@ -10,28 +10,28 @@ import (
 )
 
 type Supplier struct {
-	id		int
-	name		string
+	Id		int
+	Name		string
 }
 
 type Customer struct {
-	id		int
-	name		string
+	Id		int
+	Name		string
 }
 
 type Rating struct {
-	value 		int
-	timestamp	int64
-	source		string
-	supplier	Supplier
-	customer	Customer
+	Value 		int
+	Timestamp	int64
+	Source		string
+	Supplier	Supplier
+	Customer	Customer
 }
 
 type Block struct {
-	records  	[]Rating
-	hash	 	[]byte
-	prevHash 	[]byte
-	timestamp	int64
+	Records  	[]Rating
+	Hash	 	[]byte
+	PrevHash 	[]byte
+	Timestamp	int64
 }
 
 func generateHash(block Block) []byte {
@@ -39,9 +39,9 @@ func generateHash(block Block) []byte {
 	var hash [32]byte;
 	hashToString := "default"
 	for (hashToString[:2] != "00") {
-		timestamp := []byte(strconv.FormatInt(block.timestamp, 10))
-		ratingArr := []byte(fmt.Sprintf("%v", block.records))
-		headers := bytes.Join([][]byte{[]byte(strconv.Itoa(nonce)), block.prevHash, timestamp, ratingArr}, []byte{})
+		timestamp := []byte(strconv.FormatInt(block.Timestamp, 10))
+		ratingArr := []byte(fmt.Sprintf("%v", block.Records))
+		headers := bytes.Join([][]byte{[]byte(strconv.Itoa(nonce)), block.PrevHash, timestamp, ratingArr}, []byte{})
 		hash = sha256.Sum256(headers)
 		hashToString = base64.URLEncoding.EncodeToString(hash[:])
 		nonce++
@@ -61,7 +61,7 @@ func genesisBlock() *Block {
 
 func createBlock(records []Rating, prevHash []byte) *Block {
 	var block *Block = &Block{records, nil, prevHash, time.Now().Unix()}
-	block.hash = generateHash(*block)
+	block.Hash = generateHash(*block)
 	return block
 }
 
