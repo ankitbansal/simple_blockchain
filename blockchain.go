@@ -4,6 +4,9 @@ import (
 	"time"
 	"bytes"
 	"crypto/sha256"
+	"encoding/base64"
+	"strconv"
+	"fmt"
 )
 
 // https://dev.to/damcosset/trying-to-understand-blockchain-by-making-one-ce4
@@ -43,8 +46,17 @@ func main() {
 }
 
 func generateHash(block Block) []byte {
-	headers := bytes.Join([][]byte{block.prevHash}, []byte{})
-	hash := sha256.Sum256(headers)
+	nonce := 0
+	var hash [32]byte;
+	hashToString := "default"
+	for (hashToString[:2] != "00") {
+		headers := bytes.Join([][]byte{[]byte(strconv.Itoa(nonce)), block.prevHash}, []byte{})
+		hash = sha256.Sum256(headers)
+		hashToString = base64.URLEncoding.EncodeToString(hash[:])
+		nonce++
+	}
+
+	fmt.Printf("nonce : %d", nonce)
 	return hash[:]
 }
 
