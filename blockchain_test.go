@@ -9,7 +9,9 @@ import (
 
 func TestBlockChainShouldInitializeWithGenesisBlock(t *testing.T) {
 	cleanUp()
-	bc := createBlockChain()
+	addBlock(genesisBlock())
+
+	bc := getBlockChain()
 	genesisBlock := bc.blocks[0]
 	if genesisBlock == nil {
 		t.Errorf("BlockChain not initialized with genesis block")
@@ -28,16 +30,19 @@ func TestBlockChainShouldInitializeWithGenesisBlock(t *testing.T) {
 
 func TestShouldAddBlockInOrder(t *testing.T) {
 	cleanUp()
-	bc := createBlockChain()
+	genesisBlock := genesisBlock()
+	addBlock(genesisBlock)
+
 	supplier := Supplier{1, "dummySupplier"}
 	customer := Customer{1, "dummyConsumer"}
 	timestamp := time.Now().Unix()
 	rating := Rating{5, timestamp, "dummy", supplier, customer}
-	newBlock := createBlock([]Rating{rating}, bc.blocks[0].hash)
-	addBlock(newBlock)
+	newBlock := createBlock([]Rating{rating}, genesisBlock.hash)
 
+	addBlock(newBlock)
+	bc := getBlockChain()
 	if len(bc.blocks) != 2 {
-		t.Errorf("Blockchain size should be 2")
+		t.Errorf("Blockchain size should be %d but was %d", 2, len(bc.blocks))
 	}
 
 	if (bc.blocks[1] != newBlock) {
@@ -57,6 +62,3 @@ func printBlockChain(blockChain *BlockChain) {
 	}
 }
 
-func cleanUp() {
-
-}
