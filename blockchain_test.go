@@ -8,14 +8,22 @@ func TestBlockChainShouldInitializeWithGenesisBlock(t *testing.T) {
 	if genesisBlock == nil {
 		t.Errorf("BlockChain not initialized with genesis block")
 	}
-	if genesisBlock.prevHash != "" {
+	if genesisBlock.prevHash != nil {
 		t.Errorf("Genesis Block must have nil previous hash")
 	}
-	if genesisBlock.hash == "" {
+	if genesisBlock.hash == nil {
 		t.Errorf("Genesis Block must have hash value")
 	}
 }
 
 func TestShouldGenerateValidHash(t *testing.T) {
+	var block Block = Block{
+
+	}
+
+	hash := generateHash(block);
+	if (hash == nil) {
+		t.Errorf("Hash can't be empty")
+	}
 
 }
