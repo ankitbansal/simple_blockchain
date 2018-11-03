@@ -6,5 +6,6 @@
    If you don't want to look into persistence and is just interested in seeing a simple blockchain, checkout release_v1 and don't bother to read further <p>
 
 # Persistence
-   
    In the second part, we persist our blockchain in BoltDB <p>
+   To run this, you need to run "go get github.com/boltdb/bolt" 
+   
