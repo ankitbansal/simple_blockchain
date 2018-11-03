@@ -7,5 +7,6 @@
 
 # Persistence
    In the second part, we persist our blockchain in BoltDB <p>
-   To run this, you need to run "go get github.com/boltdb/bolt" 
-   
+   To run this, you need to first get bolt db using "go get github.com/boltdb/bolt" 
+   Serialization require fields to be exportable, hence all fields are capitalize
+   Bolt store key/value pairs in order, since hash wasn't guarantering ordering, used another field to store based on index
